@@ -2,16 +2,6 @@
   "name": "deploy-tools",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-ckeditor5": "^1.0.8",
-    "husky": "^0.14.3"
-  },
-  "scripts": {
-    "lint": "eslint --quiet '**/*.js'",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oskarwrobel/deploy-tools.git"
@@ -25,6 +15,19 @@
     "url": "https://github.com/oskarwrobel/deploy-tools/issues"
   },
   "homepage": "https://github.com/oskarwrobel/deploy-tools#readme",
+  "scripts": {
+    "lint": "eslint --quiet '**/*.js'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "node-ssh": "^5.1.1",
+    "shelljs": "^0.8.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-ckeditor5": "^1.0.8",
+    "husky": "^0.14.3"
+  },
   "lint-staged": {
     "**/*.js": [
       "eslint --quiet"
