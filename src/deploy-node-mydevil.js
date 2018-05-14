@@ -25,7 +25,7 @@ module.exports = function deploy( options ) {
 				.then( () => ssh.execCommand( `git clone ${ repo } ${ dest }` ) )
 
 				// Update project.
-				.then( () => ssh.execCommand( `cd ${ dest } && git pull && npm4 update --production && devil www restart ${ domain }` ) )
+				.then( () => ssh.execCommand( `cd ${ dest } && git pull && npm4 install && devil www restart ${ domain }` ) )
 				.then( output => console.log( output.stdout, output.stderr ) )
 
 				// End connection.
