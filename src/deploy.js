@@ -10,7 +10,10 @@ module.exports = function deploy( options ) {
 	const { host, username, privateKey, remote, local } = options;
 	const remoteCommands = [];
 
-	local( shell );
+	if ( typeof local === 'function' ) {
+		local( shell );
+	}
+
 	remote( ( command, options = {} ) => remoteCommands.push( [ command, options ] ) );
 
 	return ssh.connect( { host, username, privateKey } )
