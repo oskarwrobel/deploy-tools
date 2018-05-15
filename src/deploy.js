@@ -5,39 +5,48 @@
 const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
 
-module.exports = function deploy( options ) {
+/**
+ * @TODO Docs.
+ */
+module.exports = function deploy( { host, username, privateKey, execute } ) {
 	const ssh = new NodeSSH();
-	const { host, username, privateKey, remote, local } = options;
-	const remoteCommands = [];
+	const commands = [];
 
-	if ( typeof local === 'function' ) {
-		local( shell );
+	function local( command ) {
+		commands.push( { command } );
 	}
 
-	remote( ( command, options = {} ) => remoteCommands.push( [ command, options ] ) );
+	function remote( command, options = {} ) {
+		commands.push( { command, options } );
+	}
+
+	execute( local, remote );
 
 	return ssh.connect( { host, username, privateKey } )
 		.then( ssh => {
 			let chain = Promise.resolve();
 
-			for ( const command of remoteCommands ) {
+			for ( const { command, options } of commands ) {
 				chain = chain.then( () => {
-					console.log( command[ 0 ] );
+					console.log( options === undefined ? 'Local: ' : 'Remote: ', command );
 
-					return ssh.execCommand( command[ 0 ], command[ 1 ] )
-						.then( output => {
-							const isSilent = command[ 1 ].silent;
-
-							if ( !isSilent ) {
+					if ( options === undefined ) {
+						shell.exec( command );
+					} else {
+						return ssh.execCommand( command, options ).then( output => {
+							if ( !options.silent ) {
 								if ( output.stderr.length ) {
 									return Promise.reject( output.stderr );
 								}
 
-								console.log( output.stdout );
+								if ( output.stdout.length ) {
+									console.log( output.stdout );
+								}
 							}
 
 							return output.stdout;
 						} );
+					}
 				} );
 			}
 
