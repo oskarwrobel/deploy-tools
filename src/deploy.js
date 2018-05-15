@@ -4,34 +4,40 @@
 
 const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
-const path = require( 'path' );
 
 module.exports = function deploy( options ) {
 	const ssh = new NodeSSH();
-	const { src, dest, host, username, privateKey } = options;
-	let { tmp } = options;
+	const { host, username, privateKey, remote, local } = options;
+	const remoteCommands = [];
 
-	if ( !tmp ) {
-		tmp = path.join( path.dirname( dest ), 'tmp' );
-	}
+	local( shell );
+	remote( ( command, options = {} ) => remoteCommands.push( [ command, options ] ) );
 
-	// Copy files to the remote.
-	shell.exec( `rsync -a ${ path.join( src, '/' ) } ${ username }@${ host }:${ tmp }` );
-
-	// Connect to the remote by ssh.
 	return ssh.connect( { host, username, privateKey } )
 		.then( ssh => {
-			return Promise.resolve()
-			// Remove old project files.
-				.then( () => ssh.execCommand( `rm -rf ${ dest }` ) )
-				.then( output => console.log( output.stdout, output.stderr ) )
+			let chain = Promise.resolve();
 
-				// Move new project files to the destination.
-				.then( () => ssh.execCommand( `mv ${ tmp } ${ dest }` ) )
-				.then( output => console.log( output.stdout, output.stderr ) )
+			for ( const command of remoteCommands ) {
+				chain = chain.then( () => {
+					console.log( command[ 0 ] );
 
-				// End connection.
-				.then( () => ssh.connection.end() );
-		} )
-		.catch( err => console.log( err ) );
+					return ssh.execCommand( command[ 0 ], command[ 1 ] )
+						.then( output => {
+							const isSilent = command[ 1 ].silent;
+
+							if ( !isSilent ) {
+								if ( output.stderr.length ) {
+									return Promise.reject( output.stderr );
+								}
+
+								console.log( output.stdout );
+							}
+
+							return output.stdout;
+						} );
+				} );
+			}
+
+			return chain.then( () => ssh.connection.end() );
+		} );
 };
