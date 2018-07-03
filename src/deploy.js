@@ -6,7 +6,7 @@ const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
 
 /**
- * @TODO Docs.
+ * See README.
  */
 module.exports = function deploy( { host, username, privateKey, execute } ) {
 	const ssh = new NodeSSH();
