@@ -1,6 +1,6 @@
 # Deploy tools
 
-Scripts for deploying simple structured projects.
+Scripts for deploying a simple structure projects.
 
 ## How to use:
 
