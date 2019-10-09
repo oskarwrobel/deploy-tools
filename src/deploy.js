@@ -6,7 +6,7 @@ const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
 
 /**
- * Connects to te remote via SSH and allows for executing commands for the deploy purpose.
+ * Connects to te remote via SSH and allows for executing commands for the deployment purpose.
  *
  * See the README for more details.
  *
