@@ -17,10 +17,12 @@
   "homepage": "https://github.com/oskarwrobel/deploy-tools#readme",
   "scripts": {
     "lint": "eslint --quiet '**/*.js'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "node ./bin/release"
   },
   "dependencies": {
     "node-ssh": "^5.1.1",
+    "prompts": "^2.2.1",
     "shelljs": "^0.8.2"
   },
   "devDependencies": {
