@@ -21,13 +21,18 @@ module.exports = async function release() {
 		]
 	} );
 
+	console.log( '\nUpgrading version:\n' );
 	shell.exec( `npm version ${ response.version } -m "Bumped version to %s." -tag-version-prefix ""` );
+
+	console.log( '\nPublishing NPM package:\n' );
 	shell.exec( 'npm publish' );
+
+	console.log( '\nPushing tags:\n' );
 	shell.exec( `git push --follow-tags` );
 
 	console.log(
-		`\nNew version ${ response.version } has been released.\n` +
-		'NPM package has been published.\n' +
-		'New tag has been pushed to the remote. '
-	)
+		`\n- New version ${ response.version } has been released.\n` +
+		'- NPM package has been published.\n' +
+		'- New tag has been pushed to the remote. '
+	);
 };
