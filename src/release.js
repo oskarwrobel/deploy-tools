@@ -2,7 +2,7 @@
 
 /* eslint-env node */
 
-const { exec } = require( 'shelljs' );
+const shell = require( 'shelljs' );
 const prompts = require( 'prompts' );
 const ora = require( 'ora' );
 
@@ -24,6 +24,7 @@ module.exports = async function release() {
 
 	let start = new Date();
 
+	// One line padding for the visual purpose.
 	console.log( '' );
 
 	await executeStep(
@@ -45,9 +46,9 @@ module.exports = async function release() {
 	process.exit( 0 );
 };
 
-function asyncExec( command ) {
+function exec( command ) {
 	return new Promise( resolve => {
-		exec( command, { silent: true, async: true }, ( code, stdout, stderr ) => {
+		shell.exec( command, { silent: true, async: true }, ( code, stdout, stderr ) => {
 			resolve( { code, stdout, stderr } );
 		} );
 	} );
