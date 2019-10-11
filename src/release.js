@@ -24,7 +24,7 @@ module.exports = async function release() {
 
 	let start = new Date();
 
-	console.log( '\n' );
+	console.log( '' );
 
 	await executeStep(
 		`Upgrading version from ${ version } to ${ newVersion }.`,
