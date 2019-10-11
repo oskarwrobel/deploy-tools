@@ -7,7 +7,7 @@ It connects to the remote via SSH protocol and allows to execute commands on the
 ## How to use:
 
 ```javascript
-const deploy = require( '@oskarwrobel/deploy-tools/src/deploy' );
+const { deploy } = require( '@oskarwrobel/deploy-tools' );
 
 deploy( {
 	username: 'user-name',
@@ -38,7 +38,7 @@ deploy( {
 ## Real world example:
 
 ```javascript
-const deploy = require( '@oskarwrobel/deploy-tools/src/deploy' );
+const { deploy } = require( '@oskarwrobel/deploy-tools' );
 
 deploy( {
 	username: 'user-name',
