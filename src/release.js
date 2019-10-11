@@ -24,18 +24,20 @@ module.exports = async function release() {
 
 	let start = new Date();
 
+	console.log( '\n' );
+
 	await executeStep(
-		`Upgrading version from ${ version } to ${ newVersion }`,
+		`Upgrading version from ${ version } to ${ newVersion }.`,
 		`npm version ${ newVersion } -m "Bumped version to %s." -tag-version-prefix ""`
 	);
 
 	await executeStep(
-		'Publishing NPM package',
+		'Publishing NPM package.',
 		'npm publish',
 	);
 
 	await executeStep(
-		'Pushing tags',
+		'Pushing tags.',
 		'git push --follow-tags'
 	);
 
