@@ -6,6 +6,7 @@ const shell = require( 'shelljs' );
 const prompts = require( 'prompts' );
 const ora = require( 'ora' );
 const humanizeDuration = require( 'humanize-duration' );
+const { log } = require( './utils' );
 
 module.exports = async function release() {
 	const { version } = require( '../package.json' );
@@ -26,7 +27,7 @@ module.exports = async function release() {
 	let start = new Date();
 
 	// One line padding for the visual purpose.
-	console.log( '' );
+	log( '' );
 
 	await executeStep(
 		`Upgrading version from ${ version } to ${ newVersion }.`,
@@ -43,7 +44,7 @@ module.exports = async function release() {
 		'git push --follow-tags'
 	);
 
-	console.log( `\nDone in ${ humanizeDuration( new Date() - start ) }.` );
+	log( `\nDone in ${ humanizeDuration( new Date() - start ) }.` );
 	process.exit( 0 );
 };
 

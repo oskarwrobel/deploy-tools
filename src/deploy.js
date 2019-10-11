@@ -4,6 +4,7 @@
 
 const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
+const { log } = require( './utils' );
 
 /**
  * Connects to te remote via SSH and allows for executing commands for the deployment purpose.
@@ -98,7 +99,7 @@ class Command {
  * @param {Command} command
  * @returns {Promise}
  */
-async function executeCommand( ssh, command ) {
+function executeCommand( ssh, command ) {
 	log( `Executing a ${ command.type } command: ${ command.input }` );
 
 	if ( command.type === 'local' ) {
@@ -120,13 +121,4 @@ async function executeCommand( ssh, command ) {
 
 		return output.stdout;
 	} );
-}
-
-/**
- * A helper function that prints given value on the console.
- *
- * @param {String} value
- */
-function log( value ) {
-	console.log( value );
 }
