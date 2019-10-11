@@ -58,12 +58,12 @@ function exec( command ) {
 
 async function executeStep( message, command ) {
 	const spinner = ora( message ).start();
-	const response = await exec( command );
+	const { code, stderr } = await exec( command );
 
-	if ( response.code ) {
+	if ( code ) {
 		spinner.fail();
-		console.error( response.stderr );
-		process.exit( response.code );
+		console.error( stderr );
+		process.exit( code );
 	} else {
 		spinner.succeed();
 	}
