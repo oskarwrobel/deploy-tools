@@ -58,7 +58,7 @@ function exec( command ) {
 
 async function executeStep( message, command ) {
 	const spinner = ora( message ).start();
-	const response = await asyncExec( command );
+	const response = await exec( command );
 
 	if ( response.code ) {
 		spinner.fail();
