@@ -2,17 +2,18 @@
 
 /* eslint-env node */
 
-const shell = require( 'shelljs' );
+const { exec } = require( 'shelljs' );
 const prompts = require( 'prompts' );
+const ora = require( 'ora' );
 
 module.exports = async function release() {
 	const { version } = require( '../package.json' );
 	const versions = version.split( '.' ).map( value => parseInt( value ) );
 	const [ major, minor, patch ] = versions;
 
-	const response = await prompts( {
+	const { newVersion } = await prompts( {
 		type: 'autocomplete',
-		name: 'version',
+		name: 'newVersion',
 		message: `Choose the next version (current ${ version })`,
 		choices: [
 			{ title: `${ major }.${ minor }.${ patch + 1 }` },
@@ -21,18 +22,39 @@ module.exports = async function release() {
 		]
 	} );
 
-	console.log( '\nUpgrading version:\n' );
-	shell.exec( `npm version ${ response.version } -m "Bumped version to %s." -tag-version-prefix ""` );
+	let start = new Date();
+	let spinner;
+	let response;
 
-	console.log( '\nPublishing NPM package:\n' );
-	shell.exec( 'npm publish' );
+	spinner = ora( `Upgrading version from ${ version } to ${ newVersion }` ).start();
+	response = await asyncExec( `npm version ${ newVersion } -m "Bumped version to %s." -tag-version-prefix ""` );
+	handleResponse( response, spinner );
 
-	console.log( '\nPushing tags:\n' );
-	shell.exec( `git push --follow-tags` );
+	spinner = ora( 'Publishing NPM package' );
+	await asyncExec( 'npm publish' );
+	handleResponse( response, spinner );
 
-	console.log(
-		`\n- New version ${ response.version } has been released.\n` +
-		'- NPM package has been published.\n' +
-		'- New tag has been pushed to the remote. '
-	);
+	spinner = ora( 'Pushing tags' );
+	await asyncExec( `git push --follow-tags` );
+	handleResponse( response, spinner );
+
+	console.log( `\nDone in ${ new Date() - start }ms` );
 };
+
+function asyncExec( command ) {
+	return new Promise( resolve => {
+		exec( command, { silent: true, async: true }, ( code, stdout, stderr ) => {
+			resolve( { code, stdout, stderr } );
+		} );
+	} );
+}
+
+function handleResponse( response, spinner ) {
+	if ( response.code ) {
+		spinner.fail();
+		console.error( response.stderr );
+		process.exit( response.code );
+	} else {
+		spinner.succeed();
+	}
+}
