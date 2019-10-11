@@ -31,13 +31,14 @@ module.exports = async function release() {
 	handleResponse( response, spinner );
 
 	spinner = ora( 'Publishing NPM package' );
-	await asyncExec( 'npm publish' );
+	response = await asyncExec( 'npm publish' );
 	handleResponse( response, spinner );
 
 	spinner = ora( 'Pushing tags' );
-	await asyncExec( `git push --follow-tags` );
+	response = await asyncExec( `git push --follow-tags` );
 	handleResponse( response, spinner );
 
+	spinner.stop();
 	console.log( `\nDone in ${ new Date() - start }ms` );
 };
 
