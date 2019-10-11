@@ -1,6 +1,6 @@
 {
   "name": "@oskarwrobel/deploy-tools",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Deploy tools for simple stuctured projects.",
   "main": "src/index.js",
   "repository": {
