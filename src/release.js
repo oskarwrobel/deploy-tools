@@ -5,6 +5,7 @@
 const shell = require( 'shelljs' );
 const prompts = require( 'prompts' );
 const ora = require( 'ora' );
+const humanizeDuration = require( 'humanize-duration' );
 
 module.exports = async function release() {
 	const { version } = require( '../package.json' );
@@ -42,7 +43,7 @@ module.exports = async function release() {
 		'git push --follow-tags'
 	);
 
-	console.log( `\nDone in ${ new Date() - start }ms.` );
+	console.log( `\nDone in ${ humanizeDuration( new Date() - start ) }.` );
 	process.exit( 0 );
 };
 
