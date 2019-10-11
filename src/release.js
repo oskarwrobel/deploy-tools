@@ -23,23 +23,24 @@ module.exports = async function release() {
 	} );
 
 	let start = new Date();
-	let spinner;
-	let response;
 
-	spinner = ora( `Upgrading version from ${ version } to ${ newVersion }` ).start();
-	response = await asyncExec( `npm version ${ newVersion } -m "Bumped version to %s." -tag-version-prefix ""` );
-	handleResponse( response, spinner );
+	await executeStep(
+		`Upgrading version from ${ version } to ${ newVersion }`,
+		`npm version ${ newVersion } -m "Bumped version to %s." -tag-version-prefix ""`
+	);
 
-	spinner = ora( 'Publishing NPM package' );
-	response = await asyncExec( 'npm publish' );
-	handleResponse( response, spinner );
+	await executeStep(
+		'Publishing NPM package',
+		'npm publish',
+	);
 
-	spinner = ora( 'Pushing tags' );
-	response = await asyncExec( `git push --follow-tags` );
-	handleResponse( response, spinner );
+	await executeStep(
+		'Pushing tags',
+		'git push --follow-tags'
+	);
 
-	spinner.stop();
-	console.log( `\nDone in ${ new Date() - start }ms` );
+	console.log( `\nDone in ${ new Date() - start }ms.` );
+	process.exit( 0 );
 };
 
 function asyncExec( command ) {
@@ -50,7 +51,10 @@ function asyncExec( command ) {
 	} );
 }
 
-function handleResponse( response, spinner ) {
+async function executeStep( message, command ) {
+	const spinner = ora( message ).start();
+	const response = await asyncExec( command );
+
 	if ( response.code ) {
 		spinner.fail();
 		console.error( response.stderr );
@@ -58,4 +62,6 @@ function handleResponse( response, spinner ) {
 	} else {
 		spinner.succeed();
 	}
+
+	spinner.stop();
 }
