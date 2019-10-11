@@ -24,7 +24,7 @@ module.exports = async function release() {
 		]
 	} );
 
-	let start = new Date();
+	const start = new Date();
 
 	// One line padding for the visual purpose.
 	log( '' );

@@ -16,6 +16,6 @@ module.exports.log = function log( message ) {
  *
  * @param {String} string
  */
-function capitalize( string ) {
+module.exports.capitalize = function capitalize( string ) {
 	return string.charAt( 0 ).toUpperCase() + string.slice( 1 );
-}
+};
