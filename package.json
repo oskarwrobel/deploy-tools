@@ -1,6 +1,6 @@
 {
   "name": "@oskarwrobel/deploy-tools",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Deploy tools for simple stuctured projects.",
   "repository": {
     "type": "git",
