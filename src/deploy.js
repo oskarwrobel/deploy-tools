@@ -4,7 +4,9 @@
 
 const shell = require( 'shelljs' );
 const NodeSSH = require( 'node-ssh' );
-const { log } = require( './utils' );
+const ora = require( 'ora' );
+const humanizeDuration = require( 'humanize-duration' );
+const { log, capitalize } = require( './utils' );
 
 /**
  * Connects to te remote via SSH and allows for executing commands for the deployment purpose.
@@ -20,35 +22,40 @@ const { log } = require( './utils' );
 module.exports = function deploy( { username, host, privateKey, execute } ) {
 	const ssh = new NodeSSH();
 	const commands = new Set();
+	const start = new Date();
 
-	// Helper function for adding a local command to the commands stack.
-	function createLocalCommand( command ) {
-		commands.add( new Command( command ) );
-	}
-
-	// Helper function for adding a remote command to the commands stack.
-	function createRemoteCommand( command, options = {} ) {
-		commands.add( new Command( command, options ) );
-	}
+	// Helper functions for adding local and remote commands.
+	const createLocalCommand = command => commands.add( new Command( command ) );
+	const createRemoteCommand = ( command, options = {} ) => commands.add( new Command( command, options ) );
 
 	// Add all commands to the stack.
 	execute( createLocalCommand, createRemoteCommand );
 
-	log( `Connecting to the server ${ username }@${ host }.` );
+	const connectSpinner = ora( `Connecting to the server ${ username }@${ host }.` );
+	const disconnectSpinner = ora( 'Disconnecting from the server.' );
+
+	connectSpinner.start();
 
 	// Connect to the server and execute commands from the stack one by one (in sequence).
 	return ssh.connect( { host, username, privateKey } )
 		.then( async ssh => {
-			log( 'Connection established.' );
+			connectSpinner.succeed();
+			connectSpinner.stop();
 
 			for ( const command of commands ) {
 				await executeCommand( ssh, command );
 			}
 
-			log( 'Disconnecting from the server.' );
+			disconnectSpinner.start();
 		} )
 		.then( () => ssh.connection.end() )
-		.then( () => log( 'Disconnected.' ) );
+		.then( () => {
+			disconnectSpinner.succeed();
+			disconnectSpinner.stop();
+
+			log( `\nDone in ${ humanizeDuration( new Date() - start ) }.` );
+			process.exit( 0 );
+		} );
 };
 
 /**
@@ -100,25 +107,35 @@ class Command {
  * @returns {Promise}
  */
 function executeCommand( ssh, command ) {
-	log( `Executing a ${ command.type } command: ${ command.input }` );
+	const spinner = ora( capitalize( command.type ) + ':'.padEnd( 8 ) + command.input ).start();
 
-	if ( command.type === 'local' ) {
-		shell.exec( command.input );
+	return new Promise( ( resolve, reject ) => {
+		if ( command.type === 'local' ) {
+			shell.exec( command.input, { async: true, silent: true }, ( code, stdout, stderr ) => {
+				if ( !command.isSilent && code ) {
+					spinner.fail();
+					reject( stderr );
+				} else {
+					spinner.succeed();
+					resolve( stdout );
+				}
 
-		return Promise.resolve();
-	}
+				spinner.stop();
+			} );
+		} else {
+			ssh.execCommand( command.input, command.options ).then( output => {
+				const { stderr } = output;
 
-	return ssh.execCommand( command.input, command.options ).then( output => {
-		if ( !command.isSilent ) {
-			if ( output.stderr.length ) {
-				return Promise.reject( output.stderr );
-			}
+				if ( !command.isSilent && stderr.length ) {
+					spinner.fail();
+					reject( stderr );
+				} else {
+					spinner.succeed();
+					resolve( output.stdout );
+				}
 
-			if ( output.stdout.length ) {
-				log( output.stdout );
-			}
+				spinner.stop();
+			} );
 		}
-
-		return output.stdout;
 	} );
 }

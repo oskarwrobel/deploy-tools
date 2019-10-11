@@ -10,3 +10,12 @@
 module.exports.log = function log( message ) {
 	console.log( message );
 };
+
+/**
+ * A helper function that changes first letters of a given string to uppercase.
+ *
+ * @param {String} string
+ */
+function capitalize( string ) {
+	return string.charAt( 0 ).toUpperCase() + string.slice( 1 );
+}
