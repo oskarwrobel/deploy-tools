@@ -107,7 +107,7 @@ class Command {
  * @returns {Promise}
  */
 function executeCommand( ssh, command ) {
-	const spinner = ora( capitalize( command.type ) + ':'.padEnd( 8 ) + command.input ).start();
+	const spinner = ora( `${ capitalize( command.type ) }:`.padEnd( 8 ) + command.input ).start();
 
 	return new Promise( ( resolve, reject ) => {
 		if ( command.type === 'local' ) {
